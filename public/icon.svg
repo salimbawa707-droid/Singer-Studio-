@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#022c22" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="50%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  
+  <!-- App Icon Background (Rounded Squircle for Maskable Safe Zone) -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect x="8" y="8" width="496" height="496" rx="104" fill="none" stroke="#6366f1" stroke-opacity="0.3" stroke-width="4" />
+  
+  <!-- Outer Sonic Glow Ring -->
+  <circle cx="256" cy="256" r="170" fill="none" stroke="url(#glowGrad)" stroke-width="6" stroke-dasharray="12 8" opacity="0.6" />
+  <circle cx="256" cy="256" r="140" fill="#0f172a" stroke="#334155" stroke-width="4" filter="url(#shadow)" />
+  
+  <!-- Dynamic Audio Equalizer Waveform Bars -->
+  <!-- Left to Right Spectrum -->
+  <rect x="160" y="220" width="16" height="72" rx="8" fill="#6366f1" />
+  <rect x="188" y="180" width="16" height="152" rx="8" fill="#818cf8" />
+  <rect x="216" y="140" width="16" height="232" rx="8" fill="#a855f7" />
+  <rect x="244" y="110" width="24" height="292" rx="12" fill="url(#glowGrad)" />
+  <rect x="280" y="140" width="16" height="232" rx="8" fill="#10b981" />
+  <rect x="308" y="180" width="16" height="152" rx="8" fill="#34d399" />
+  <rect x="336" y="220" width="16" height="72" rx="8" fill="#06b6d4" />
+  
+  <!-- Studio Microphone Sparkle Accents -->
+  <circle cx="256" cy="90" r="10" fill="#10b981" />
+  <circle cx="160" cy="180" r="5" fill="#818cf8" opacity="0.8" />
+  <circle cx="352" cy="180" r="5" fill="#34d399" opacity="0.8" />
+</svg>

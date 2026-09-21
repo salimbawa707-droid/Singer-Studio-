@@ -1,0 +1,126 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def appVersionCode = localProperties.getProperty('versionCode') ?: '1'
+def appVersionName = localProperties.getProperty('versionName') ?: '1.0.0'
+
+// Dynamically resolve installed NDK version to prevent build failure on developer machines
+def resolveNdkVersion() {
+    def prop = localProperties.getProperty('ndk.version')
+    if (prop != null && !prop.trim().isEmpty()) {
+        return prop.trim()
+    }
+    def envNdk = System.getenv("NDK_VERSION")
+    if (envNdk != null && !envNdk.trim().isEmpty()) {
+        return envNdk.trim()
+    }
+
+    def sdkDir = localProperties.getProperty('sdk.dir') ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
+    if (sdkDir != null) {
+        def ndkDir = new File(sdkDir, "ndk")
+        if (ndkDir.exists() && ndkDir.isDirectory()) {
+            def versions = ndkDir.listFiles().findAll { it.isDirectory() && !it.name.startsWith('.') }.collect { it.name }
+            if (versions != null && !versions.isEmpty()) {
+                if (versions.contains("25.2.9519653")) {
+                    return "25.2.9519653"
+                }
+                versions.sort()
+                return versions.last()
+            }
+        }
+    }
+    return null
+}
+def detectedNdkVersion = resolveNdkVersion()
+
+// Safely locate CMakeLists.txt whether building from repo root or direct Gradle
+def resolveCMakeLists() {
+    def candidates = [
+        file("${projectDir}/../../native/CMakeLists.txt"),
+        file("${rootDir}/../native/CMakeLists.txt"),
+        file("${rootDir}/native/CMakeLists.txt"),
+        file("${projectDir}/../native/CMakeLists.txt")
+    ]
+    for (File c : candidates) {
+        if (c.exists()) {
+            return c.canonicalFile
+        }
+    }
+    return candidates[0]
+}
+def cmakeListsFile = resolveCMakeLists()
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+    namespace "com.surge.musicbase"
+    compileSdkVersion 34
+    if (detectedNdkVersion != null) {
+        ndkVersion detectedNdkVersion
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        main.res.srcDirs += 'src/main/res'
+        main.assets.srcDirs += 'src/main/assets'
+    }
+
+    defaultConfig {
+        applicationId "com.surge.musicbase"
+        minSdkVersion 21
+        targetSdkVersion 34
+        versionCode appVersionCode.toInteger()
+        versionName appVersionName
+
+        if (detectedNdkVersion != null) {
+            ndk {
+                abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64', 'x86'
+            }
+
+            externalNativeBuild {
+                cmake {
+                    cppFlags "-std=c++17 -fexceptions -frtti"
+                    arguments "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang"
+                }
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+        }
+    }
+
+    if (detectedNdkVersion != null && cmakeListsFile != null && cmakeListsFile.exists()) {
+        externalNativeBuild {
+            cmake {
+                path cmakeListsFile
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
+    implementation "androidx.core:core-ktx:1.12.0"
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "androidx.webkit:webkit:1.9.0"
+}
+

@@ -1,0 +1,8 @@
+{
+  "name": "Surge Studio",
+  "description": "Offline Singing & Music Production Engine featuring VĀK multimodal vocal system, real-time audio recording, 7-stage DSP vocal cleanup, YIN pitch detection, modular realistic acoustic sound engine, multi-track mixer, mastering, and genuine MP3 / 24-bit WAV export.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
